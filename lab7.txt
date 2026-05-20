@@ -1,0 +1,134 @@
+Name: MySms
+Package name: com.example.mysms
+
+
+activity_main.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Phone Number"
+        android:inputType="phone"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/editTextMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Message"
+        android:inputType="text"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/buttonSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send SMS" />
+
+</LinearLayout>
+
+
+
+
+
+#android_mainfest.xml
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permission goes here -->
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MySms">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+
+
+
+
+#kt
+
+package com.example.mysms
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.telephony.SmsManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+class MainActivity : AppCompatActivity() {
+
+    private val SMS_PERMISSION_CODE = 101
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.SEND_SMS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.SEND_SMS),
+                SMS_PERMISSION_CODE
+            )
+        }
+        val phoneNumberEditText = findViewById<EditText>(R.id.editTextPhone)
+        val messageEditText = findViewById<EditText>(R.id.editTextMessage)
+        val sendButton = findViewById<Button>(R.id.buttonSend)
+        sendButton.setOnClickListener {
+            val phoneNumber = phoneNumberEditText.text.toString()
+            val message = messageEditText.text.toString()
+            sendSMS(phoneNumber, message);
+
+        }
+
+    }
+
+    private fun sendSMS(phoneNumber: String, message: String) {
+        try {
+            val smsManager: SmsManager = SmsManager.getDefault()
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null)
+            Toast.makeText(this, "SMS Sent!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "SMS Failed: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+}

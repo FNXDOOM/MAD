@@ -1,0 +1,136 @@
+name: MediaPlayerApp
+Inside : res->raw->song.mp3
+
+
+package com.example.mediaplayerapp
+
+import android.os.Bundle
+import android.media.MediaPlayer
+import android.widget.Button
+import android.widget.SeekBar
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var seekBar: SeekBar
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val playButton = findViewById<Button>(R.id.buttonPlay)
+        val pauseButton = findViewById<Button>(R.id.buttonPause)
+        val forwardButton = findViewById<Button>(R.id.buttonForward)
+        val backwardButton = findViewById<Button>(R.id.buttonBackward)
+        seekBar = findViewById(R.id.seekBar)
+
+        // Audio file placed in res/raw folder (example: song.mp3)
+        mediaPlayer = MediaPlayer.create(this, R.raw.song)
+
+        seekBar.max = mediaPlayer.duration
+
+        playButton.setOnClickListener {
+            mediaPlayer.start()
+        }
+
+        pauseButton.setOnClickListener {
+            mediaPlayer.pause()
+        }
+
+        forwardButton.setOnClickListener {
+            val currentPosition = mediaPlayer.currentPosition
+            val newPosition = (currentPosition + 5000).coerceAtMost(mediaPlayer.duration)
+            mediaPlayer.seekTo(newPosition) // forward 5 sec
+        }
+
+        backwardButton.setOnClickListener {
+            val currentPosition = mediaPlayer.currentPosition
+            val newPosition = (currentPosition - 5000).coerceAtLeast(0)
+            mediaPlayer.seekTo(newPosition) // backward 5 sec
+        }
+
+        // Update SeekBar continuously on the main thread
+        Thread {
+            while (!isDestroyed) {
+                try {
+                    if (mediaPlayer.isPlaying) {
+                        runOnUiThread {
+                            seekBar.progress = mediaPlayer.currentPosition
+                        }
+                    }
+                    Thread.sleep(1000)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }.start()
+
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    mediaPlayer.seekTo(progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
+        mediaPlayer.release()
+    }
+}
+
+
+
+
+
+
+
+
+
+#xml
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/buttonPlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Play" />
+
+    <Button
+        android:id="@+id/buttonPause"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pause" />
+
+    <Button
+        android:id="@+id/buttonForward"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Forward" />
+
+    <Button
+        android:id="@+id/buttonBackward"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Backward" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
