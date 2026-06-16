@@ -1,0 +1,132 @@
+MainActivity.kt
+
+
+package com.example.xmlparserdemo
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import org.xmlpull.v1.XmlPullParser
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val btnParse: Button = findViewById(R.id.btnParse)
+        val tvResult: TextView = findViewById(R.id.tvResult)
+
+        // MODERN FIX: This ensures the button moves below the clock/status bar
+        // so it becomes clickable and visible.
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        tvResult.text = "Ready to parse. Click the button above."
+        // Ensure text is visible regardless of theme
+        tvResult.setTextColor(android.graphics.Color.BLACK) 
+
+        btnParse.setOnClickListener {
+            Log.d("XML_DEBUG", "Button clicked - Starting parsing")
+            Toast.makeText(this, "Parsing XML...", Toast.LENGTH_SHORT).show()
+            tvResult.text = "Processing..."
+            
+            try {
+                val parser = resources.getXml(R.xml.data)
+                val result = StringBuilder()
+                var eventType = parser.eventType
+
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG) {
+                        val tagName = parser.name
+                        when (tagName) {
+                            "student" -> result.append("\n--- Student Record ---\n")
+                            "name", "roll", "course" -> {
+                                // nextText() reads the content between tags
+                                val text = parser.nextText()
+                                result.append("${tagName.replaceFirstChar { it.uppercase() }}: $text\n")
+                            }
+                        }
+                    }
+                    eventType = parser.next()
+                }
+
+                if (result.isEmpty()) {
+                    tvResult.text = "No data found in the XML file."
+                } else {
+                    tvResult.text = result.toString()
+                }
+                Log.d("XML_DEBUG", "Parsing finished successfully.")
+
+            } catch (e: Exception) {
+                Log.e("XML_DEBUG", "Error during parsing: ${e.message}", e)
+                tvResult.text = "Error: ${e.localizedMessage}"
+                Toast.makeText(this, "Parsing failed!", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+}
+
+
+activity_main.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <Button
+        android:id="@+id/btnParse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Parse XML Data" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:text="Ready to parse. Click the button above." />
+    </ScrollView>
+</LinearLayout>
+
+
+
+
+res/xml/data.xml
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<students>
+    <student>
+        <name>John</name>
+        <roll>101</roll>
+        <course>Computer Science</course>
+    </student>
+    <student>
+        <name>Mary</name>
+        <roll>102</roll>
+        <course>Electronics</course>
+    </student>
+</students>
+
