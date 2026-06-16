@@ -1,0 +1,324 @@
+MainActivity.kt
+
+
+package com.example.calculator
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    lateinit var btn0: Button
+    lateinit var btn1: Button
+    lateinit var btn2: Button
+    lateinit var btn3: Button
+    lateinit var btn4: Button
+    lateinit var btn5: Button
+    lateinit var btn6: Button
+    lateinit var btn7: Button
+    lateinit var btn8: Button
+    lateinit var btn9: Button
+
+    lateinit var btnPlus: Button
+    lateinit var btnSub: Button
+    lateinit var btnMul: Button
+    lateinit var btnDiv: Button
+    lateinit var btnClr: Button
+    lateinit var btnEq: Button
+
+    lateinit var TView: EditText
+    lateinit var Display: TextView
+
+    var firstValue = 0.0
+    var secondValue = 0.0
+    var result = 0.0
+    var op = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
+
+        btn0 = findViewById(R.id.btn0)
+        btn1 = findViewById(R.id.btn1)
+        btn2 = findViewById(R.id.btn2)
+        btn3 = findViewById(R.id.btn3)
+        btn4 = findViewById(R.id.btn4)
+        btn5 = findViewById(R.id.btn5)
+        btn6 = findViewById(R.id.btn6)
+        btn7 = findViewById(R.id.btn7)
+        btn8 = findViewById(R.id.btn8)
+        btn9 = findViewById(R.id.btn9)
+
+        btnPlus = findViewById(R.id.btnPlus)
+        btnSub = findViewById(R.id.btnSub)
+        btnMul = findViewById(R.id.btnMul)
+        btnDiv = findViewById(R.id.btnDiv)
+        btnClr = findViewById(R.id.btnCLR)
+        btnEq = findViewById(R.id.btnEq)
+
+        TView = findViewById(R.id.Edt1)
+        Display = findViewById(R.id.Display)
+
+        // Number buttons
+        btn0.setOnClickListener { TView.append("0") }
+        btn1.setOnClickListener { TView.append("1") }
+        btn2.setOnClickListener { TView.append("2") }
+        btn3.setOnClickListener { TView.append("3") }
+        btn4.setOnClickListener { TView.append("4") }
+        btn5.setOnClickListener { TView.append("5") }
+        btn6.setOnClickListener { TView.append("6") }
+        btn7.setOnClickListener { TView.append("7") }
+        btn8.setOnClickListener { TView.append("8") }
+        btn9.setOnClickListener { TView.append("9") }
+
+        // Operator buttons
+        btnPlus.setOnClickListener {
+            if (TView.text.isNotEmpty()) {
+                firstValue = TView.text.toString().toDouble()
+                op = "+"
+                TView.text.clear()
+            }
+        }
+
+        btnSub.setOnClickListener {
+            if (TView.text.isNotEmpty()) {
+                firstValue = TView.text.toString().toDouble()
+                op = "-"
+                TView.text.clear()
+            }
+        }
+
+        btnMul.setOnClickListener {
+            if (TView.text.isNotEmpty()) {
+                firstValue = TView.text.toString().toDouble()
+                op = "*"
+                TView.text.clear()
+            }
+        }
+
+        btnDiv.setOnClickListener {
+            if (TView.text.isNotEmpty()) {
+                firstValue = TView.text.toString().toDouble()
+                op = "/"
+                TView.text.clear()
+            }
+        }
+
+        // Clear button
+        btnClr.setOnClickListener {
+            TView.text.clear()
+            Display.text = ""
+            firstValue = 0.0
+            secondValue = 0.0
+            result = 0.0
+            op = ""
+        }
+
+        // Equals button
+        btnEq.setOnClickListener {
+
+            if (TView.text.isEmpty()) {
+                return@setOnClickListener
+            }
+
+            secondValue = TView.text.toString().toDouble()
+
+            result = when (op) {
+                "+" -> firstValue + secondValue
+                "-" -> firstValue - secondValue
+                "*" -> firstValue * secondValue
+
+                "/" -> {
+                    if (secondValue == 0.0) {
+                        Display.text = "Error: Div by 0"
+                        return@setOnClickListener
+                    }
+                    firstValue / secondValue
+                }
+
+                else -> 0.0
+            }
+
+            Display.text = result.toString()
+            TView.setText(result.toString())
+        }
+    }
+}
+
+
+
+activity_main.xml
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/Edt1"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter value"
+        android:inputType="numberDecimal|numberSigned"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/Display"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textSize="22sp"
+        android:gravity="end"
+        app:layout_constraintTop_toBottomOf="@id/Edt1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Row 1 -->
+    <Button
+        android:id="@+id/btn1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+        app:layout_constraintTop_toBottomOf="@id/Display"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/btn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2"
+        app:layout_constraintTop_toTopOf="@id/btn1"
+        app:layout_constraintStart_toEndOf="@id/btn1"/>
+
+    <Button
+        android:id="@+id/btn3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3"
+        app:layout_constraintTop_toTopOf="@id/btn1"
+        app:layout_constraintStart_toEndOf="@id/btn2"/>
+
+    <Button
+        android:id="@+id/btnPlus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+"
+        app:layout_constraintTop_toTopOf="@id/btn1"
+        app:layout_constraintStart_toEndOf="@id/btn3"/>
+
+    <!-- Row 2 -->
+    <Button
+        android:id="@+id/btn4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="4"
+        app:layout_constraintTop_toBottomOf="@id/btn1"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/btn5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5"
+        app:layout_constraintTop_toTopOf="@id/btn4"
+        app:layout_constraintStart_toEndOf="@id/btn4"/>
+
+    <Button
+        android:id="@+id/btn6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="6"
+        app:layout_constraintTop_toTopOf="@id/btn4"
+        app:layout_constraintStart_toEndOf="@id/btn5"/>
+
+    <Button
+        android:id="@+id/btnSub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        app:layout_constraintTop_toTopOf="@id/btn4"
+        app:layout_constraintStart_toEndOf="@id/btn6"/>
+
+    <!-- Row 3 -->
+    <Button
+        android:id="@+id/btn7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="7"
+        app:layout_constraintTop_toBottomOf="@id/btn4"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/btn8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="8"
+        app:layout_constraintTop_toTopOf="@id/btn7"
+        app:layout_constraintStart_toEndOf="@id/btn7"/>
+
+    <Button
+        android:id="@+id/btn9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="9"
+        app:layout_constraintTop_toTopOf="@id/btn7"
+        app:layout_constraintStart_toEndOf="@id/btn8"/>
+
+    <Button
+        android:id="@+id/btnMul"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*"
+        app:layout_constraintTop_toTopOf="@id/btn7"
+        app:layout_constraintStart_toEndOf="@id/btn9"/>
+
+    <!-- Row 4 -->
+    <Button
+        android:id="@+id/btn0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        app:layout_constraintTop_toBottomOf="@id/btn7"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/btnCLR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CLR"
+        app:layout_constraintTop_toTopOf="@id/btn0"
+        app:layout_constraintStart_toEndOf="@id/btn0"/>
+
+    <Button
+        android:id="@+id/btnEq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="="
+        app:layout_constraintTop_toTopOf="@id/btn0"
+        app:layout_constraintStart_toEndOf="@id/btnCLR"/>
+
+    <Button
+        android:id="@+id/btnDiv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="/"
+        app:layout_constraintTop_toTopOf="@id/btn0"
+        app:layout_constraintStart_toEndOf="@id/btnEq"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
